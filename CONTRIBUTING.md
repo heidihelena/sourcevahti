@@ -22,10 +22,12 @@ session cookies.
 Every adapter must:
 
 - preserve native indicator identifiers and definitions;
+- identify the health topic and normalised measure;
 - map observations to strict normalised models;
 - distinguish crude from age-standardised values;
 - name the standard population for every standardised rate;
-- preserve source indicator codes, geography, age group, and observation status;
+- preserve source indicator codes, geography, age group, observation status,
+  uncertainty bounds, and source notes when published;
 - validate source, geography, sex, unit, and rate categories;
 - return an ambiguity error when several valid definitions remain;
 - include a direct citation URL, source release version and date, retrieval date,
@@ -48,6 +50,16 @@ Keep the change auditable:
 5. Add or update tests for every new dimension or changed definition.
 6. Treat a disappearing or renamed dimension as a breaking upstream change, not
    as an empty result.
+
+For the reviewed WHO GHO and Eurostat matrices, use:
+
+```bash
+uv run python scripts/refresh_context_snapshots.py
+```
+
+The script validates structural invariants but does not approve a release.
+Review the snapshot diff, official metadata, uncertainty/status fields and
+licensing before committing an update.
 
 Code is licensed under Apache-2.0. Confirm that source data may be redistributed
 before adding it; otherwise commit only the smallest legally permitted fixture or

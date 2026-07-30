@@ -53,7 +53,8 @@ def create_server(
             str | None,
             Field(
                 description=(
-                    "Optional source: finnish_cancer_registry or nordcan. "
+                    "Optional source: finnish_cancer_registry, nordcan, who_gho, "
+                    "or eurostat. "
                     "Source names in the query are also enforced."
                 )
             ),
@@ -73,7 +74,11 @@ def create_server(
         ] = None,
         unit: Annotated[
             str | None,
-            Field(description=("Optional unit. Canonical value: per_100_000_person_years.")),
+            Field(
+                description=(
+                    "Optional unit. Canonical values include per_100_000_person_years and percent."
+                )
+            ),
         ] = None,
         limit: Annotated[
             int,

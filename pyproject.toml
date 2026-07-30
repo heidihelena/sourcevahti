@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sourcevahti"
-version = "0.2.0"
+version = "0.3.0"
 description = "Reliable MCP access to public health, government, and research data"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -53,6 +53,7 @@ include = [
   "/README.md",
   "/LICENSE",
   "/docs",
+  "/scripts",
   "/CONTRIBUTING.md",
   "/SECURITY.md",
   "/pyproject.toml",

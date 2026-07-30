@@ -112,6 +112,7 @@ async def test_free_text_sex_cannot_select_opposite_series(client: Client) -> No
         "get_latest_observation",
         {
             "query": "male lung cancer mortality rate",
+            "source": "finnish_cancer_registry",
             "rate_type": "crude",
         },
     )

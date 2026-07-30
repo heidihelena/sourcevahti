@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from sourcevahti.adapters import FinnishCancerRegistryAdapter, NordcanAdapter
+from sourcevahti.adapters import (
+    EurostatAdapter,
+    FinnishCancerRegistryAdapter,
+    NordcanAdapter,
+    WhoGhoAdapter,
+)
 from sourcevahti.adapters.base import SnapshotAdapter
 from sourcevahti.errors import (
     IndicatorNotFoundError,
@@ -29,7 +34,14 @@ class SourceCatalog:
 
     def __init__(self, adapters: Iterable[SnapshotAdapter] | None = None) -> None:
         configured = tuple(
-            adapters if adapters is not None else (FinnishCancerRegistryAdapter(), NordcanAdapter())
+            adapters
+            if adapters is not None
+            else (
+                FinnishCancerRegistryAdapter(),
+                NordcanAdapter(),
+                WhoGhoAdapter(),
+                EurostatAdapter(),
+            )
         )
         if not configured:
             raise ValueError("SourceCatalog requires at least one adapter")

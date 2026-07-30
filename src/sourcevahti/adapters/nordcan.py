@@ -124,6 +124,11 @@ class NordcanAdapter(SnapshotAdapter):
                                     "type=1;cancer=160;sex=2;"
                                     f"geography={geography_code};statistic={column}"
                                 ),
+                                health_topic="Lung cancer",
+                                indicator_definition=(
+                                    "Deaths from malignant neoplasms of the trachea, "
+                                    "bronchus and lung in the published population."
+                                ),
                                 unit=Unit.PER_100_000_PERSON_YEARS,
                                 sex=Sex.FEMALE,
                                 geography=geography,

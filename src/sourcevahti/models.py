@@ -27,18 +27,22 @@ class SourceId(StrEnum):
 
     FINNISH_CANCER_REGISTRY = "finnish_cancer_registry"
     NORDCAN = "nordcan"
+    WHO_GHO = "who_gho"
+    EUROSTAT = "eurostat"
 
 
 class Measure(StrEnum):
     """Normalised statistical measure."""
 
     CANCER_MORTALITY_RATE = "cancer_mortality_rate"
+    TOBACCO_USE_PREVALENCE = "tobacco_use_prevalence"
 
 
 class Unit(StrEnum):
     """Canonical unit for a normalised observation."""
 
     PER_100_000_PERSON_YEARS = "per_100_000_person_years"
+    PERCENT = "percent"
     COUNT = "count"
 
 
@@ -52,12 +56,15 @@ class RateType(StrEnum):
     AGE_STANDARDISED_NORDIC_2000 = "age_standardised_nordic_2000"
     AGE_STANDARDISED_EUROPE_1976 = "age_standardised_europe_1976"
     AGE_STANDARDISED_EUROPE_2013 = "age_standardised_europe_2013"
+    AGE_STANDARDISED_WHO = "age_standardised_who"
 
 
 class ObservationStatus(StrEnum):
     """Publication status supplied or derived from the source."""
 
     OBSERVED = "observed"
+    MODELLED_ESTIMATE = "modelled_estimate"
+    PROJECTED = "projected"
 
 
 class Provenance(SourceVahtiModel):
@@ -90,8 +97,10 @@ class Indicator(SourceVahtiModel):
     description: str = Field(min_length=1)
     measure: Measure
     source_indicator_code: str = Field(min_length=1)
-    cancer_site: str = Field(min_length=1)
-    cancer_definition: str = Field(min_length=1)
+    health_topic: str = Field(min_length=1)
+    indicator_definition: str = Field(min_length=1)
+    cancer_site: str | None = Field(default=None, min_length=1)
+    cancer_definition: str | None = Field(default=None, min_length=1)
     sex: Sex
     geography: str = Field(min_length=1)
     age_group: str = Field(min_length=1)
@@ -114,6 +123,16 @@ class Indicator(SourceVahtiModel):
             raise ValueError("age-standardised rates require a standard population")
         if self.measure is Measure.CANCER_MORTALITY_RATE and self.unit is Unit.COUNT:
             raise ValueError("cancer mortality rates cannot use the count unit")
+        if self.measure is Measure.CANCER_MORTALITY_RATE:
+            if not self.cancer_site or not self.cancer_definition:
+                raise ValueError("cancer mortality rates require a cancer definition")
+            if self.unit is not Unit.PER_100_000_PERSON_YEARS:
+                raise ValueError("cancer mortality rates must use the per-100,000 unit")
+        if self.measure is Measure.TOBACCO_USE_PREVALENCE:
+            if self.unit is not Unit.PERCENT:
+                raise ValueError("tobacco prevalence must use percent")
+            if self.rate_type is not RateType.AGE_STANDARDISED_WHO:
+                raise ValueError("tobacco prevalence requires the WHO-standardised rate type")
         return self
 
 
@@ -139,14 +158,19 @@ class Observation(SourceVahtiModel):
     indicator_id: str
     year: int = Field(ge=1900, le=2200)
     value: float = Field(ge=0)
+    lower_bound: float | None = Field(default=None, ge=0)
+    upper_bound: float | None = Field(default=None, ge=0)
+    note: str | None = Field(default=None, min_length=1)
     measure: Measure
     source_indicator_code: str = Field(min_length=1)
     unit: Unit
     sex: Sex
     geography: str = Field(min_length=1)
     age_group: str = Field(min_length=1)
-    cancer_site: str = Field(min_length=1)
-    cancer_definition: str = Field(min_length=1)
+    health_topic: str = Field(min_length=1)
+    indicator_definition: str = Field(min_length=1)
+    cancer_site: str | None = Field(default=None, min_length=1)
+    cancer_definition: str | None = Field(default=None, min_length=1)
     rate_type: RateType
     standard_population: str | None
     observation_status: ObservationStatus
@@ -161,6 +185,24 @@ class Observation(SourceVahtiModel):
             raise ValueError("age-standardised observations require a standard population")
         if self.measure is Measure.CANCER_MORTALITY_RATE and self.unit is Unit.COUNT:
             raise ValueError("cancer mortality rates cannot use the count unit")
+        if (
+            self.lower_bound is not None
+            and self.upper_bound is not None
+            and not self.lower_bound <= self.value <= self.upper_bound
+        ):
+            raise ValueError("value must fall within its uncertainty bounds")
+        if (self.lower_bound is None) is not (self.upper_bound is None):
+            raise ValueError("uncertainty bounds must be supplied together")
+        if self.measure is Measure.CANCER_MORTALITY_RATE:
+            if not self.cancer_site or not self.cancer_definition:
+                raise ValueError("cancer mortality rates require a cancer definition")
+            if self.unit is not Unit.PER_100_000_PERSON_YEARS:
+                raise ValueError("cancer mortality rates must use the per-100,000 unit")
+        if self.measure is Measure.TOBACCO_USE_PREVALENCE:
+            if self.unit is not Unit.PERCENT:
+                raise ValueError("tobacco prevalence must use percent")
+            if self.rate_type is not RateType.AGE_STANDARDISED_WHO:
+                raise ValueError("tobacco prevalence requires the WHO-standardised rate type")
         return self
 
 

@@ -52,9 +52,8 @@ def test_validate_unit_normalises_supported_spellings(raw: str) -> None:
     assert validate_unit(raw) is Unit.PER_100_000_PERSON_YEARS
 
 
-def test_validate_unit_rejects_percentage() -> None:
-    with pytest.raises(InputValidationError, match="unsupported unit"):
-        validate_unit("percent")
+def test_validate_unit_accepts_percentage() -> None:
+    assert validate_unit("percent") is Unit.PERCENT
     assert validate_unit("number") is Unit.COUNT
 
 
@@ -67,6 +66,7 @@ def test_validate_unit_rejects_percentage() -> None:
         ("Nordic 2000", RateType.AGE_STANDARDISED_NORDIC_2000),
         ("European 2013", RateType.AGE_STANDARDISED_EUROPE_2013),
         ("Finland 2014", RateType.AGE_STANDARDISED_FINLAND_2014),
+        ("WHO standard population", RateType.AGE_STANDARDISED_WHO),
     ],
 )
 def test_validate_rate_type(raw: str, expected: RateType) -> None:
@@ -140,6 +140,8 @@ def test_query_source_and_geography_are_material_constraints() -> None:
 def test_source_and_geography_alias_validation() -> None:
     assert validate_source("FCR") is SourceId.FINNISH_CANCER_REGISTRY
     assert validate_source("NORDCAN") is SourceId.NORDCAN
+    assert validate_source("WHO") is SourceId.WHO_GHO
+    assert validate_source("Eurostat") is SourceId.EUROSTAT
     assert validate_geography("faroe") == "Faroe Islands"
     assert validate_geography("Finland") == "Finland"
     assert (
@@ -148,7 +150,7 @@ def test_source_and_geography_alias_validation() -> None:
     )
 
     with pytest.raises(InputValidationError, match="unsupported source"):
-        validate_source("WHO")
+        validate_source("CDC")
     with pytest.raises(InputValidationError, match="unsupported geography"):
         validate_geography("Estonia")
 

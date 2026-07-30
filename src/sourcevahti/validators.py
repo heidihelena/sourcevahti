@@ -105,6 +105,14 @@ def constrain_query(
         query_sources.add(SourceId.NORDCAN)
     if "fcr" in token_set or _has_phrase(tokens, ("finnish", "cancer", "registry")):
         query_sources.add(SourceId.FINNISH_CANCER_REGISTRY)
+    if (
+        "gho" in token_set
+        or "who" in token_set
+        or _has_phrase(tokens, ("global", "health", "observatory"))
+    ):
+        query_sources.add(SourceId.WHO_GHO)
+    if "eurostat" in token_set:
+        query_sources.add(SourceId.EUROSTAT)
     if len(query_sources) > 1:
         raise InputValidationError(
             "query contains multiple sources",
@@ -135,6 +143,8 @@ def constrain_query(
         query_units.add(Unit.COUNT)
     if _contains_per_100_000(tokens):
         query_units.add(Unit.PER_100_000_PERSON_YEARS)
+    if token_set & {"percent", "percentage", "pct"}:
+        query_units.add(Unit.PERCENT)
     if len(query_units) > 1:
         raise InputValidationError(
             "query contains conflicting units",
@@ -182,6 +192,11 @@ def constrain_query(
         or _has_phrase(tokens, ("european", "2013"))
         or _has_phrase(tokens, ("asr", "european", "2013"))
     )
+    who_standard = (
+        _has_phrase(tokens, ("who", "standard", "population"))
+        or _has_phrase(tokens, ("who", "standardised"))
+        or _has_phrase(tokens, ("who", "standardized"))
+    )
     if world_1966_standard:
         query_rate_types.add(RateType.AGE_STANDARDISED_WORLD_1966)
     elif world_standard:
@@ -199,6 +214,8 @@ def constrain_query(
         query_rate_types.add(RateType.AGE_STANDARDISED_EUROPE_1976)
     if europe_2013_standard:
         query_rate_types.add(RateType.AGE_STANDARDISED_EUROPE_2013)
+    if who_standard:
+        query_rate_types.add(RateType.AGE_STANDARDISED_WHO)
 
     generic_age_standardised = (
         "standardised" in token_set
@@ -214,6 +231,7 @@ def constrain_query(
             nordic_2000_standard,
             europe_1976_standard,
             europe_2013_standard,
+            who_standard,
         )
     )
     if generic_age_standardised and not has_specific_standard:
@@ -346,6 +364,11 @@ def validate_source(value: str | SourceId | None) -> SourceId | None:
         "finnish cancer registry": SourceId.FINNISH_CANCER_REGISTRY,
         "finnish_cancer_registry": SourceId.FINNISH_CANCER_REGISTRY,
         "nordcan": SourceId.NORDCAN,
+        "who": SourceId.WHO_GHO,
+        "who gho": SourceId.WHO_GHO,
+        "who_gho": SourceId.WHO_GHO,
+        "global health observatory": SourceId.WHO_GHO,
+        "eurostat": SourceId.EUROSTAT,
     }
     normalised = _normalise(value)
     try:
@@ -420,6 +443,9 @@ def validate_unit(value: str | Unit | None) -> Unit | None:
         "per 100000 person years": Unit.PER_100_000_PERSON_YEARS,
         "per_100_000_person_years": Unit.PER_100_000_PERSON_YEARS,
         "rate per 100 000": Unit.PER_100_000_PERSON_YEARS,
+        "percent": Unit.PERCENT,
+        "percentage": Unit.PERCENT,
+        "pct": Unit.PERCENT,
     }
     normalised = _normalise(value)
     try:
@@ -461,6 +487,10 @@ def validate_rate_type(value: str | RateType | None) -> RateType | None:
         "age standardised europe 2013": RateType.AGE_STANDARDISED_EUROPE_2013,
         "age_standardised_europe_2013": RateType.AGE_STANDARDISED_EUROPE_2013,
         "european 2013": RateType.AGE_STANDARDISED_EUROPE_2013,
+        "age standardised who": RateType.AGE_STANDARDISED_WHO,
+        "age_standardised_who": RateType.AGE_STANDARDISED_WHO,
+        "age standardized who": RateType.AGE_STANDARDISED_WHO,
+        "who standard population": RateType.AGE_STANDARDISED_WHO,
     }
     normalised = _normalise(value)
     try:
