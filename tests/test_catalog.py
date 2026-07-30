@@ -17,11 +17,13 @@ def catalog() -> SourceCatalog:
     return SourceCatalog()
 
 
-def test_catalog_exposes_both_sources(catalog: SourceCatalog) -> None:
-    assert len(catalog.indicators) == 48
+def test_catalog_exposes_all_sources(catalog: SourceCatalog) -> None:
+    assert len(catalog.indicators) == 78
     assert {item.provenance.source_id for item in catalog.indicators} == {
         SourceId.FINNISH_CANCER_REGISTRY,
         SourceId.NORDCAN,
+        SourceId.WHO_GHO,
+        SourceId.EUROSTAT,
     }
 
 
@@ -60,6 +62,19 @@ def test_source_filter_resolves_overlapping_finland_rate(
 
     assert result.observation.value == 29.9
     assert result.observation.provenance.source_id is SourceId.NORDCAN
+
+
+def test_european_2013_lung_rate_is_ambiguous_across_sources(
+    catalog: SourceCatalog,
+) -> None:
+    with pytest.raises(AmbiguousIndicatorError) as raised:
+        catalog.get_latest_observation(query="female Finland lung mortality European 2013")
+
+    candidates = raised.value.details["candidates"]
+    assert {candidate["source"] for candidate in candidates} == {
+        "eurostat",
+        "nordcan",
+    }
 
 
 def test_exact_identifier_routes_to_owning_adapter(catalog: SourceCatalog) -> None:

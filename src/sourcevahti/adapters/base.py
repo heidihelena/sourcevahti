@@ -51,6 +51,9 @@ _SEARCH_ALIASES = {
     "women": {"female", "women", "woman"},
     "woman": {"female", "women", "woman"},
     "lung": {"lung", "trachea", "c33", "c34"},
+    "smoking": {"smoking", "tobacco"},
+    "tobacco": {"smoking", "tobacco"},
+    "prevalence": {"prevalence", "percent", "percentage"},
     "standardised": {"standardised", "standardized", "asr"},
     "standardized": {"standardised", "standardized", "asr"},
 }
@@ -407,6 +410,7 @@ class SnapshotAdapter(ABC):
                 {
                     "indicator_id": candidate.indicator_id,
                     "source": candidate.provenance.source_id.value,
+                    "measure": candidate.measure.value,
                     "geography": candidate.geography,
                     "rate_type": candidate.rate_type.value,
                     "standard_population": candidate.standard_population,
@@ -449,6 +453,8 @@ class SnapshotAdapter(ABC):
             description=first_loaded.indicator_description,
             measure=first.measure,
             source_indicator_code=first.source_indicator_code,
+            health_topic=first.health_topic,
+            indicator_definition=first.indicator_definition,
             cancer_site=first.cancer_site,
             cancer_definition=first.cancer_definition,
             sex=first.sex,
@@ -457,7 +463,7 @@ class SnapshotAdapter(ABC):
             unit=first.unit,
             rate_type=first.rate_type,
             standard_population=first.standard_population,
-            observation_status=first.observation_status,
+            observation_status=latest.observation_status,
             first_year=first.year,
             latest_year=latest.year,
             provenance=latest.provenance,
@@ -472,6 +478,8 @@ class SnapshotAdapter(ABC):
             loaded_row.indicator_description,
             item.measure,
             item.source_indicator_code,
+            item.health_topic,
+            item.indicator_definition,
             item.unit,
             item.sex,
             item.geography,
@@ -480,7 +488,6 @@ class SnapshotAdapter(ABC):
             item.cancer_definition,
             item.rate_type,
             item.standard_population,
-            item.observation_status,
             provenance.source_id,
             provenance.source_name,
             provenance.dataset_title,
@@ -494,6 +501,11 @@ class SnapshotAdapter(ABC):
     @staticmethod
     def _score(query: str, indicator: Indicator) -> tuple[float, list[str]]:
         query_tokens = _TOKEN_RE.findall(query.casefold())
+        measure_hints = (
+            "cancer lung mortality death rate per 100000 asr"
+            if indicator.measure.value == "cancer_mortality_rate"
+            else "tobacco smoking prevalence percent percentage"
+        )
         blob = " ".join(
             (
                 indicator.indicator_id,
@@ -503,15 +515,17 @@ class SnapshotAdapter(ABC):
                 indicator.source_indicator_code,
                 indicator.provenance.source_id.value,
                 indicator.provenance.source_name,
-                indicator.cancer_site,
-                indicator.cancer_definition,
+                indicator.health_topic,
+                indicator.indicator_definition,
+                indicator.cancer_site or "",
+                indicator.cancer_definition or "",
                 indicator.sex.value,
                 indicator.geography,
                 indicator.age_group,
                 indicator.unit.value,
                 indicator.rate_type.value,
                 indicator.standard_population or "",
-                "cancer rate per 100000 asr",
+                f"health indicator {measure_hints}",
             )
         ).casefold()
         blob_tokens = set(_TOKEN_RE.findall(blob))
@@ -521,6 +535,18 @@ class SnapshotAdapter(ABC):
             aliases = _SEARCH_ALIASES.get(token, {token})
             if aliases & blob_tokens:
                 matched.append(token)
+        domain_terms = {
+            "death",
+            "deaths",
+            "mortality",
+            "lung",
+            "smoking",
+            "tobacco",
+            "prevalence",
+        }
+        requested_domain_terms = domain_terms & set(query_tokens)
+        if requested_domain_terms and not requested_domain_terms.intersection(matched):
+            return 0.0, []
         if not matched:
             return 0.0, []
         score = len(matched) / len(set(query_tokens))

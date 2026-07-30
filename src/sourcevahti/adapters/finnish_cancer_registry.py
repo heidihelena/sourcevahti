@@ -85,6 +85,8 @@ class FinnishCancerRegistryAdapter(SnapshotAdapter):
                     source_indicator_code=(
                         f"site=21L;value_type={_SOURCE_VALUE_TYPES[rate_type]};sex=1L"
                     ),
+                    health_topic="Lung cancer",
+                    indicator_definition=row["cancer_definition"],
                     unit=Unit(row["unit"]),
                     sex=Sex(row["sex"]),
                     geography=row["geography"],
