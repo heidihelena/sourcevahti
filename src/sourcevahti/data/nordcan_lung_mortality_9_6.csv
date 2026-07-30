@@ -1,0 +1,17 @@
+geography,geography_code,year,asr_world,asr_nordic_2000,asr_europe_1976,asr_europe_2013,crude
+NORDCAN countries,nordcan_countries,2023,13.1,29.4,20.5,29.4,40.1
+NORDCAN countries excl. Faroe Islands and Greenland,nordcan_countries_excl_faroe_greenland,2023,13.1,29.4,20.5,29.4,40.1
+Denmark,denmark,2023,18.5,41.3,29.0,41.3,56.5
+Faroe Islands,faroe_islands,2023,13.4,39.5,23.4,39.5,45.9
+Finland,finland,2023,9.6,20.8,14.9,20.8,31.6
+Greenland,greenland,2023,38.1,97.8,61.1,97.8,56.1
+Iceland,iceland,2023,16.2,39.8,26.1,39.8,39.4
+Norway,norway,2023,13.4,29.9,20.9,29.9,36.4
+Sweden,sweden,2023,11.8,27.3,18.7,27.3,37.2
+NORDCAN countries excl. Faroe Islands and Greenland,nordcan_countries_excl_faroe_greenland,2024,13.3,29.7,20.8,29.7,41.0
+Denmark,denmark,2024,19.6,43.0,30.4,43.0,59.0
+Finland,finland,2024,9.0,19.3,13.9,19.3,29.9
+Greenland,greenland,2024,32.0,69.8,50.6,69.8,48.6
+Iceland,iceland,2024,14.8,35.3,24.0,35.3,35.6
+Norway,norway,2024,14.1,32.2,22.3,32.2,39.8
+Sweden,sweden,2024,11.7,27.1,18.6,27.1,37.5
