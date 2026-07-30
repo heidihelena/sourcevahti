@@ -9,6 +9,11 @@ Both parent domains currently use Cloudflare DNS. Create the records only after
 the application host has supplied a canonical target hostname. A DNS name alone
 does not deploy either application.
 
+> **Do not paste the words “Canonical hostname supplied by the … host” into
+> Cloudflare.** They describe a value that does not exist until the application
+> has been deployed. Cloudflare correctly rejects that text as an invalid CNAME
+> target.
+
 ## Cloudflare records
 
 In Cloudflare, open the relevant zone and select **DNS → Records → Add record**.
@@ -19,7 +24,7 @@ For the SourceVahti service in the `vahtian.com` zone:
 | --- | --- |
 | Type | `CNAME` |
 | Name | `sourcevahti` |
-| Target | Canonical hostname supplied by the Python service host |
+| Target | The real hostname copied from the Python host, represented below as `sourcevahti-abc123.provider.example` |
 | Proxy status | DNS only during domain verification |
 | TTL | Auto |
 
@@ -29,9 +34,14 @@ For the Shiny application in the `ntog.org` zone:
 | --- | --- |
 | Type | `CNAME` |
 | Name | `trends` |
-| Target | Canonical hostname supplied by the Shiny application host |
+| Target | The real hostname copied from the Shiny host, represented below as `ntog-trends-abc123.provider.example` |
 | Proxy status | DNS only during domain verification |
 | TTL | Auto |
+
+The example hostnames above are intentionally non-working examples. Replace one
+with the exact hostname shown by the selected hosting provider. Do not use the
+public custom domain itself as its target; for example, a `sourcevahti` CNAME
+pointing to `sourcevahti.vahtian.com` would be a DNS loop.
 
 If a hosting provider supplies fixed IPv4 or IPv6 addresses instead of a
 hostname, create the provider’s required `A` or `AAAA` records rather than the
