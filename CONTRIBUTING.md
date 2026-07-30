@@ -49,6 +49,6 @@ Keep the change auditable:
 6. Treat a disappearing or renamed dimension as a breaking upstream change, not
    as an empty result.
 
-Code is MIT-licensed. Confirm that source data may be redistributed before adding
-it; otherwise commit only the smallest legally permitted fixture or a synthetic
-contract fixture and document the limitation.
+Code is licensed under Apache-2.0. Confirm that source data may be redistributed
+before adding it; otherwise commit only the smallest legally permitted fixture or
+a synthetic contract fixture and document the limitation.
