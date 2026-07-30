@@ -263,8 +263,19 @@ The NORDCAN web application offers CSV/XLSX table export but does not document a
 stable public data API. The adapter therefore remains snapshot-backed.
 
 Review source metadata and terms before redistributing new data. The repository’s
-MIT licence covers SourceVahti code. Source data remains governed by its publisher’s
-terms; each snapshot carries a separate `license_note` in every provenance object.
+Apache-2.0 licence covers SourceVahti code. Source data remains governed by its
+publisher’s terms; each snapshot carries a separate `license_note` in every
+provenance object.
+
+## Deployment and DNS
+
+The planned public endpoints are `sourcevahti.vahtian.com` for the hosted HTTP/MCP
+service and `trends.ntog.org` for the NTOG Shiny application. DNS records should
+only be created after each deployment has supplied its canonical target hostname.
+
+See [docs/DNS.md](docs/DNS.md) for the Cloudflare records, provider-side custom
+domain steps, verification commands, and an explanation of why the existing NTOG
+`CNAME` file must remain unchanged.
 
 ## Development
 
@@ -285,6 +296,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for source-update rules and
 
 ## Licence
 
-SourceVahti code is licensed under the [MIT License](LICENSE). No medical advice
-is provided. Always cite the source and preserve the returned epidemiological
-definition when reporting a value.
+SourceVahti code is licensed under the
+[Apache License, Version 2.0](LICENSE). No medical advice is provided. Always cite
+the source and preserve the returned epidemiological definition when reporting a
+value.
